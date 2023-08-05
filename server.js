@@ -1,10 +1,17 @@
 import express from 'express'
 import jwt from 'jsonwebtoken'
+import cors from 'cors'
 const app = express()
 
 app.set('view engine', 'ejs')
 app.use(express.urlencoded({extended: true}))
 app.use(express.json())
+
+app.use(
+    cors({
+        origin: 'http://localhost:3000'
+    })
+)
 
 //generate accesstoken
 const generateAccessToken = (user) => {
@@ -53,7 +60,7 @@ const LoginProfiles = [
     {
         id: 1,
         username: "admin",
-        password: "passwd123",
+        password: "admin",
         isAdmin: true,
     },
     {
@@ -81,6 +88,28 @@ const LoginProfiles = [
         isAdmin: false,
     }
 ];
+
+app.post('/api/login', (req, res) => {
+    const { userID, passkey } = req.body;
+  
+    const sample = LoginProfiles.find((profile) => {
+      return profile.username === userID && profile.password === passkey;
+    });
+  
+    if (sample) {
+      console.log('Success');
+
+      res.status(200).json({
+        code: 'Success',
+        username: sample.username,
+      });
+    } else {
+      res.status(401).json({
+        error: 'Failed',
+      });
+    }
+  });
+
 
 //for login
 app.post('/login', (req, res) => {
